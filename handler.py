@@ -1,4 +1,5 @@
 from io import BytesIO
+from urllib import response
 from PIL import Image, ImageChops, ImageOps
 import os
 import uuid
@@ -48,7 +49,23 @@ def new_filename(key):
 
 def upload_to_s3(bucket, key, image, img_size): 
 
+    out_thumbnail = BytesIO()
 
+    image.save(out_thumbnail, 'PNG')
+    out_thumbnail.seek(0)
+
+    response = s3.put_object(
+        ACL='public-read',
+        Body=out_thumbnail,
+        Bucket=bucket,
+        ContentType='image/png',
+        Key=key
+    )
+    print(response)
+
+    url = '{}/{}/{}'.format(s3.meta.endpoint_url, bucket, key)
+
+    
     body = {
         "message": "Go Serverless v3.0! Your function executed successfully!",
         "input": event,

@@ -23,7 +23,19 @@ provider:
         - Effect: 'Allow'
           Resource: '*'
           Action: 's3:*'
+custom:
+  bucket: paulo-thumbnails
+  pythonRequirments:
+    dockerizePip: true
 
 functions:
-  hello:
-    handler: handler.hello
+  s3_thumbnail_generator:
+    handler: handler.s3_thumbnail_generator
+    events:
+      - s3:
+          bucket: "${self:custom.bucket}"
+          event: s3:ObjectCreated:*
+          rules:
+            - suffix: .png
+plugins:
+  - serverless-python-requirments
